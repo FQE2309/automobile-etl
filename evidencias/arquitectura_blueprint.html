@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blueprint — Automobile ETL</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0a1628}
+.bp{font-family:'Rajdhani',sans-serif;background:#0a1628;padding:28px;width:100%;max-width:1000px;margin:0 auto;position:relative;overflow:hidden}
+.grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(100,160,255,0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(100,160,255,0.06) 1px,transparent 1px);background-size:32px 32px}
+.content{position:relative;z-index:1}
+.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;border-bottom:1px solid rgba(100,160,255,0.3);padding-bottom:16px}
+.proj-title{font-size:20px;font-weight:700;color:#e0eeff;letter-spacing:2px;text-transform:uppercase}
+.proj-sub{font-size:11px;color:#4a7ab5;letter-spacing:3px;text-transform:uppercase;margin-top:3px;font-family:'Share Tech Mono',monospace}
+.meta{text-align:right;font-family:'Share Tech Mono',monospace;font-size:10px;color:#4a7ab5;line-height:1.8}
+.meta span{color:#8ab4e8}
+.main-flow{display:flex;align-items:center;gap:0;margin-bottom:20px}
+.node{border:1px solid rgba(100,160,255,0.4);padding:14px 12px;position:relative;background:rgba(10,22,40,0.8)}
+.node::before{content:'';position:absolute;top:-1px;left:-1px;width:8px;height:8px;border-top:2px solid #64a0ff;border-left:2px solid #64a0ff}
+.node::after{content:'';position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;border-bottom:2px solid #64a0ff;border-right:2px solid #64a0ff}
+.node-raw{flex:0 0 100px}
+.node-bronze{flex:1;border-color:rgba(180,100,30,0.5)}
+.node-bronze::before,.node-bronze::after{border-color:#b4641e}
+.node-silver{flex:1;border-color:rgba(100,140,200,0.5)}
+.node-silver::before,.node-silver::after{border-color:#6488c8}
+.node-gold{flex:1;border-color:rgba(200,160,20,0.5)}
+.node-gold::before,.node-gold::after{border-color:#c8a014}
+.node-dest{flex:0 0 100px;border-color:rgba(140,80,200,0.5)}
+.node-dest::before,.node-dest::after{border-color:#8c50c8}
+.node-tag{font-size:9px;letter-spacing:2px;text-transform:uppercase;font-family:'Share Tech Mono',monospace;margin-bottom:6px}
+.tag-raw{color:#4a7ab5}.tag-bronze{color:#b4641e}.tag-silver{color:#6488c8}.tag-gold{color:#c8a014}.tag-dest{color:#8c50c8}
+.node-name{font-size:15px;font-weight:700;color:#e0eeff;margin-bottom:4px;letter-spacing:1px}
+.node-detail{font-size:10px;color:#4a7ab5;font-family:'Share Tech Mono',monospace;line-height:1.6}
+.node-badges{display:flex;flex-wrap:wrap;gap:3px;margin-top:8px}
+.badge{font-size:9px;padding:1px 6px;border-radius:2px;font-family:'Share Tech Mono',monospace;letter-spacing:0.5px}
+.badge-bronze{background:rgba(180,100,30,0.15);color:#b4641e;border:1px solid rgba(180,100,30,0.3)}
+.badge-silver{background:rgba(100,140,200,0.15);color:#6488c8;border:1px solid rgba(100,140,200,0.3)}
+.badge-gold{background:rgba(200,160,20,0.15);color:#c8a014;border:1px solid rgba(200,160,20,0.3)}
+.badge-blue{background:rgba(100,160,255,0.1);color:#64a0ff;border:1px solid rgba(100,160,255,0.2)}
+.connector{flex:0 0 28px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px}
+.conn-line{width:20px;height:1px;background:rgba(100,160,255,0.4)}
+.conn-dot{width:5px;height:5px;border:1px solid #64a0ff;background:#0a1628;transform:rotate(45deg)}
+.conn-arrow{color:#64a0ff;font-size:14px;line-height:1}
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px}
+.panel{border:1px solid rgba(100,160,255,0.2);padding:14px;background:rgba(10,22,40,0.6);position:relative}
+.panel::before{content:'';position:absolute;top:-1px;left:-1px;width:6px;height:6px;border-top:1px solid #64a0ff;border-left:1px solid #64a0ff}
+.panel-title{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:#4a7ab5;font-family:'Share Tech Mono',monospace;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(100,160,255,0.15)}
+.table-list{display:flex;flex-direction:column;gap:5px}
+.trow{display:flex;align-items:center;gap:8px}
+.trow-dot{width:5px;height:5px;flex-shrink:0;transform:rotate(45deg)}
+.dot-b{background:#b4641e}.dot-s{background:#6488c8}.dot-g{background:#c8a014}
+.trow-name{font-size:10px;color:#8ab4e8;font-family:'Share Tech Mono',monospace}
+.trow-layer{font-size:9px;color:#2a4a7a;margin-left:auto;font-family:'Share Tech Mono',monospace}
+.cicd-flow{display:flex;flex-direction:column;gap:6px}
+.cicd-row{display:flex;align-items:center;gap:6px}
+.cicd-num{font-size:9px;color:#2a4a7a;font-family:'Share Tech Mono',monospace;width:14px}
+.cicd-box{font-size:10px;font-weight:600;color:#8ab4e8;padding:3px 8px;border:1px solid rgba(100,160,255,0.2);background:rgba(100,160,255,0.05);letter-spacing:0.5px;flex:1;text-align:center}
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mcard{border:1px solid rgba(100,160,255,0.15);padding:10px;text-align:center;background:rgba(100,160,255,0.03)}
+.mnum{font-size:24px;font-weight:700;font-family:'Share Tech Mono',monospace}
+.mlabel{font-size:9px;color:#4a7ab5;letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.mnum-w{color:#e0eeff}.mnum-b{color:#b4641e}.mnum-s{color:#6488c8}.mnum-g{color:#c8a014}
+.footer{margin-top:16px;padding-top:12px;border-top:1px solid rgba(100,160,255,0.15);display:flex;justify-content:space-between;align-items:center}
+.footer-left{font-family:'Share Tech Mono',monospace;font-size:9px;color:#2a4a7a;letter-spacing:1px}
+.status{display:flex;align-items:center;gap:6px}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e}
+.status-text{font-size:9px;color:#22c55e;font-family:'Share Tech Mono',monospace;letter-spacing:1px}
+</style>
+</head>
+<body>
+<div class="bp">
+  <div class="grid-bg"></div>
+  <div class="content">
+    <div class="header">
+      <div>
+        <div class="proj-title">Automobile ETL</div>
+        <div class="proj-sub">Arquitectura Medallion — Azure Databricks</div>
+      </div>
+      <div class="meta">
+        PROYECTO: <span>automobile-etl</span><br>
+        CATALOG: <span>dbw_dataengineering_sandbox</span><br>
+        RUNTIME: <span>Spark 4.0 / Python 3.12</span><br>
+        REPO: <span>FQE2309/automobile-etl</span>
+      </div>
+    </div>
+    <div class="main-flow">
+      <div class="node node-raw">
+        <div class="node-tag tag-raw">// origen</div>
+        <div class="node-name">RAW</div>
+        <div class="node-detail">ADLS Gen2<br>Managed<br>Identity</div>
+        <div class="node-badges"><span class="badge badge-blue">2 CSV</span></div>
+      </div>
+      <div class="connector"><div class="conn-dot"></div><div class="conn-line"></div><div class="conn-arrow">▶</div></div>
+      <div class="node node-bronze">
+        <div class="node-tag tag-bronze">// capa 01</div>
+        <div class="node-name">BRONZE</div>
+        <div class="node-detail">Extract<br>Sin transformación<br>+ auditoría</div>
+        <div class="node-badges">
+          <span class="badge badge-bronze">automobiles_raw</span>
+          <span class="badge badge-bronze">fuel_economy_raw</span>
+        </div>
+      </div>
+      <div class="connector"><div class="conn-dot"></div><div class="conn-line"></div><div class="conn-arrow">▶</div></div>
+      <div class="node node-silver">
+        <div class="node-tag tag-silver">// capa 02</div>
+        <div class="node-name">SILVER</div>
+        <div class="node-detail">Transform<br>PySpark · JOIN<br>Columnas derivadas</div>
+        <div class="node-badges">
+          <span class="badge badge-silver">automobiles_enriched</span>
+          <span class="badge badge-silver">92 filas</span>
+        </div>
+      </div>
+      <div class="connector"><div class="conn-dot"></div><div class="conn-line"></div><div class="conn-arrow">▶</div></div>
+      <div class="node node-gold">
+        <div class="node-tag tag-gold">// capa 03</div>
+        <div class="node-name">GOLD</div>
+        <div class="node-detail">Load<br>Agregaciones<br>Analytics ready</div>
+        <div class="node-badges">
+          <span class="badge badge-gold">4 tablas</span>
+          <span class="badge badge-gold">Delta Lake</span>
+        </div>
+      </div>
+      <div class="connector"><div class="conn-dot"></div><div class="conn-line"></div><div class="conn-arrow">▶</div></div>
+      <div class="node node-dest">
+        <div class="node-tag tag-dest">// destino</div>
+        <div class="node-name">BI</div>
+        <div class="node-detail">Databricks<br>Dashboard</div>
+        <div class="node-badges"><span class="badge badge-blue">Visual</span></div>
+      </div>
+    </div>
+    <div class="bottom-grid">
+      <div class="panel">
+        <div class="panel-title">// tablas delta</div>
+        <div class="table-list">
+          <div class="trow"><div class="trow-dot dot-b"></div><span class="trow-name">automobiles_raw</span><span class="trow-layer">bronze</span></div>
+          <div class="trow"><div class="trow-dot dot-b"></div><span class="trow-name">fuel_economy_raw</span><span class="trow-layer">bronze</span></div>
+          <div class="trow"><div class="trow-dot dot-s"></div><span class="trow-name">automobiles_enriched</span><span class="trow-layer">silver</span></div>
+          <div class="trow"><div class="trow-dot dot-g"></div><span class="trow-name">avg_price_by_make</span><span class="trow-layer">gold</span></div>
+          <div class="trow"><div class="trow-dot dot-g"></div><span class="trow-name">fuel_efficiency_ranking</span><span class="trow-layer">gold</span></div>
+          <div class="trow"><div class="trow-dot dot-g"></div><span class="trow-name">price_segment_analysis</span><span class="trow-layer">gold</span></div>
+          <div class="trow"><div class="trow-dot dot-g"></div><span class="trow-name">body_style_summary</span><span class="trow-layer">gold</span></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">// ci/cd pipeline</div>
+        <div class="cicd-flow">
+          <div class="cicd-row"><span class="cicd-num">01</span><div class="cicd-box">PrepAmb</div></div>
+          <div class="cicd-row"><span class="cicd-num">02</span><div class="cicd-box">Extract</div></div>
+          <div class="cicd-row"><span class="cicd-num">03</span><div class="cicd-box">Transform</div></div>
+          <div class="cicd-row"><span class="cicd-num">04</span><div class="cicd-box">Load</div></div>
+          <div class="cicd-row"><span class="cicd-num">05</span><div class="cicd-box">Grants</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-title">// métricas</div>
+        <div class="metrics-grid">
+          <div class="mcard"><div class="mnum mnum-w">2</div><div class="mlabel">Fuentes</div></div>
+          <div class="mcard"><div class="mnum mnum-b">2</div><div class="mlabel">Bronze</div></div>
+          <div class="mcard"><div class="mnum mnum-s">92</div><div class="mlabel">Filas Silver</div></div>
+          <div class="mcard"><div class="mnum mnum-g">4</div><div class="mlabel">Gold</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      <div class="footer-left">UNITY CATALOG · DELTA LAKE · PYSPARK · GITHUB ACTIONS</div>
+      <div class="status">
+        <div class="status-dot"></div>
+        <span class="status-text">PIPELINE EJECUTADO</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
