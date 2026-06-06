@@ -18,7 +18,7 @@ Pipeline ETL que transforma datos crudos de características técnicas y eficien
 
 ## 🏛️ Arquitectura
 
-![Arquitectura](evidencias/arquitectura.png)
+[Ver arquitectura interactiva](dashboard/arquitectura_blueprint.html)
 
 ```
 ADLS Gen2 (raw-data)
