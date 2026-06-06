@@ -1,0 +1,90 @@
+{
+  "dashboard_name": "Automobile Market Analysis",
+  "description": "Dashboard de análisis del mercado automotriz basado en datos ETL Medallion",
+  "data_source": "Databricks Unity Catalog - automobile_catalog.gold",
+  "connection_mode": "DirectQuery",
+  "tables_used": [
+    "automobile_catalog.gold.avg_price_by_make",
+    "automobile_catalog.gold.body_style_summary",
+    "automobile_catalog.gold.fuel_efficiency_ranking",
+    "automobile_catalog.gold.price_segment_analysis"
+  ],
+  "pages": [
+    {
+      "page": 1,
+      "name": "Resumen Ejecutivo",
+      "visuals": [
+        {
+          "type": "KPI Card",
+          "title": "Total Marcas Analizadas",
+          "measure": "COUNT(DISTINCT make)"
+        },
+        {
+          "type": "KPI Card",
+          "title": "Precio Promedio General",
+          "measure": "AVG(avg_price)"
+        },
+        {
+          "type": "Bar Chart",
+          "title": "Precio Promedio por Marca",
+          "table": "avg_price_by_make",
+          "x_axis": "make",
+          "y_axis": "avg_price",
+          "color": "fe_market_segment"
+        },
+        {
+          "type": "Donut Chart",
+          "title": "Distribución por Tipo de Carrocería",
+          "table": "body_style_summary",
+          "values": "total_autos",
+          "legend": "body_style"
+        }
+      ]
+    },
+    {
+      "page": 2,
+      "name": "Eficiencia de Combustible",
+      "visuals": [
+        {
+          "type": "Horizontal Bar",
+          "title": "Top 10 Marcas más Eficientes",
+          "table": "fuel_efficiency_ranking",
+          "y_axis": "make",
+          "x_axis": "avg_combined_mpg",
+          "color": "fuel_type"
+        },
+        {
+          "type": "Scatter Plot",
+          "title": "CO2 vs Costo Anual de Combustible",
+          "table": "fuel_efficiency_ranking",
+          "x_axis": "avg_co2_gkm",
+          "y_axis": "avg_fuel_cost_usd",
+          "size": "num_models",
+          "tooltip": "make"
+        }
+      ]
+    },
+    {
+      "page": 3,
+      "name": "Segmentación de Mercado",
+      "visuals": [
+        {
+          "type": "Matrix Table",
+          "title": "Análisis por Segmento de Precio",
+          "table": "price_segment_analysis",
+          "rows": "price_category",
+          "columns": ["avg_price", "avg_hp", "avg_safety", "pct_turbo"]
+        },
+        {
+          "type": "Treemap",
+          "title": "Volumen por Segmento",
+          "table": "price_segment_analysis",
+          "group": "price_category",
+          "values": "total_autos"
+        }
+      ]
+    }
+  ],
+  "refresh_schedule": "Daily at 06:00 AM",
+  "note": "Ver screenshots del dashboard en esta misma carpeta (dashboard/*.png)"
+}
