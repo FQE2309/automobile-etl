@@ -155,8 +155,8 @@ Ver capturas en: [dashboard/](dashboard/)
 
 ## 👤 Autor
 
-**Tu Nombre**
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/tu-usuario)
+**Fabian Quintero E.**
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/FQE2309)
 
 **Data Engineering** | **Azure Databricks** | **Delta Lake** | **CI/CD**
 
