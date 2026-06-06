@@ -18,7 +18,7 @@ Pipeline ETL que transforma datos crudos de características técnicas y eficien
 
 ## 🏛️ Arquitectura
 
-[Ver arquitectura interactiva](evidencias/arquitectura_blueprint.html)
+[Ver arquitectura interactiva](evidencias/arquitecture.png)
 
 
 ```
