@@ -1,0 +1,73 @@
+name: Automobile ETL Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  etl-pipeline:
+    name: Run ETL on Databricks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Databricks CLI
+        run: |
+          pip install databricks-cli
+          databricks --version
+
+      - name: Configure Databricks connection
+        env:
+          DATABRICKS_HOST:  ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          databricks configure --token <<EOF
+          $DATABRICKS_HOST
+          $DATABRICKS_TOKEN
+          EOF
+          echo "✅ Databricks CLI configurado"
+
+      - name: Upload notebooks to Databricks workspace
+        env:
+          DATABRICKS_HOST:  ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+        run: |
+          databricks workspace mkdirs /automobile_etl/PrepAmb
+          databricks workspace mkdirs /automobile_etl/proceso
+          databricks workspace import PrepAmb/prepamb.py      /automobile_etl/PrepAmb/prepamb      --language PYTHON --overwrite
+          databricks workspace import proceso/etl_completo.py /automobile_etl/proceso/etl_completo --language PYTHON --overwrite
+          echo "✅ Notebooks subidos"
+
+      - name: Run ETL Pipeline
+        env:
+          DATABRICKS_HOST:  ${{ secrets.DATABRICKS_HOST }}
+          DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+          CLUSTER_ID:       ${{ secrets.DATABRICKS_CLUSTER_ID }}
+        run: |
+          databricks runs submit \
+            --wait \
+            --json '{
+              "run_name": "CI_CD_ETL_Automobile",
+              "existing_cluster_id": "'"$CLUSTER_ID"'",
+              "notebook_task": {
+                "notebook_path": "/automobile_etl/proceso/etl_completo"
+              }
+            }'
+          echo "✅ Pipeline ejecutado"
+
+      - name: Pipeline Success
+        run: |
+          echo "🎉 ETL Automobile completado"
+          echo "   Bronze → Silver → Gold"
